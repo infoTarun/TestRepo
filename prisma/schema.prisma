@@ -1,0 +1,1013 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model amz_feeds {
+  id                              Int              @id @default(autoincrement())
+  user_id                         Int
+  products                        String           @db.Text
+  feed_submission_id_product      String           @db.VarChar(50)
+  feed_submission_id_image        String           @db.VarChar(50)
+  feed_submission_id_price        String           @db.VarChar(50)
+  feed_submission_id_inventory    String           @db.VarChar(50)
+  feed_submission_id_relationship String           @db.VarChar(50)
+  status                          amz_feeds_status
+  errdata                         String           @db.Text
+  created_at                      DateTime         @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime         @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model amz_keys {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  merchant_id       String   @db.VarChar(60)
+  marketplace_id    String   @db.VarChar(60)
+  access_key_id     String   @db.VarChar(60)
+  secret_access_key String   @db.VarChar(60)
+  mws_token         String   @db.VarChar(100)
+  lastdatafetched   DateTime @db.DateTime(0)
+  lastordersfetched DateTime @db.DateTime(0)
+  created_at        DateTime @default(now()) @db.Timestamp(0)
+  updated_at        DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model amz_orders {
+  id                 Int      @id @default(autoincrement())
+  user_id            Int
+  amz_order_id       String   @db.VarChar(30)
+  amz_order_response String   @db.Text
+  created_at         DateTime @default(now()) @db.Timestamp(0)
+  updated_at         DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model amz_reportrequests {
+  id         Int                       @id @default(autoincrement())
+  user_id    Int
+  requestid  String                    @db.VarChar(50)
+  reportid   String                    @db.VarChar(50)
+  reporttype String                    @db.VarChar(255)
+  status     amz_reportrequests_status @default(pending)
+  inprocess  Boolean
+  resync     Boolean                   @default(false)
+  created_at DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at DateTime                  @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model amz_syncqueue {
+  id                 Int      @id @default(autoincrement())
+  data               String   @db.LongText
+  processed          Boolean
+  user_id            Int
+  dateofmodification DateTime @db.DateTime(0)
+}
+
+model channel_products_mapping {
+  id         Int      @id @default(autoincrement())
+  channel_id Int
+  product_id Int
+  ebayitemid String?  @db.VarChar(30)
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+model chargerequest {
+  id            Int    @id @default(autoincrement())
+  user_id       Int
+  charge_id     String @db.VarChar(20)
+  api_client_id String @db.VarChar(20)
+  price         Float  @db.Float
+  credits       Int    @default(0)
+  status        String @db.VarChar(10)
+  created_at    String @db.VarChar(25)
+  updated_at    String @db.VarChar(25)
+  response      String @db.Text
+}
+
+model collection_mapping {
+  id                  Int    @id @default(autoincrement())
+  shopifyproductid    String @db.VarChar(40)
+  shopifycollectionid String @db.VarChar(40)
+  user_id             Int
+  created_at          Int
+  updated_at          Int
+}
+
+model crons {
+  id        Int      @id @default(autoincrement())
+  crontype  String   @db.VarChar(50)
+  isrunning Boolean  @default(false)
+  lastrun   DateTime @db.DateTime(0)
+  info      String   @db.VarChar(500)
+}
+
+model eb_keys {
+  id              Int      @id @default(autoincrement())
+  sellerid        String   @db.VarChar(100)
+  token           String   @db.Text
+  siteid          Int
+  expirydate      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  valid           Boolean  @default(true)
+  lastdatafetched DateTime @db.DateTime(0)
+  user_id         Int
+  status          String   @db.VarChar(500)
+  created_at      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model eb_requests {
+  id         Int                @id @default(autoincrement())
+  inprocess  Boolean
+  status     eb_requests_status
+  user_id    Int
+  created_at DateTime           @default(now()) @db.Timestamp(0)
+  updated_at DateTime           @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model eb_syncqueue {
+  id                 Int      @id @default(autoincrement())
+  data               String   @db.LongText
+  processed          Boolean
+  user_id            Int
+  dateofmodification DateTime @db.DateTime(0)
+}
+
+model ebproducts {
+  id                  Int      @default(autoincrement())
+  sku                 String   @db.VarChar(50)
+  ebayitemid          String   @db.VarChar(30)
+  listingdate         DateTime @db.DateTime(0)
+  user_id             Int
+  created_at          DateTime @default(now()) @db.Timestamp(0)
+  updated_at          DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  qty                 Int
+  price               Float    @db.Float
+  promotional_sale_id String   @db.VarChar(30)
+  ended               Boolean
+  todelete            Boolean
+
+  @@id([id, user_id])
+}
+
+model flower_requests {
+  id         Int                    @id @default(autoincrement())
+  type       String                 @db.VarChar(30)
+  inprocess  Boolean
+  data       String                 @db.VarChar(2000)
+  status     flower_requests_status
+  user_id    Int
+  logfile    String                 @db.VarChar(50)
+  created_at DateTime               @default(now()) @db.Timestamp(0)
+  updated_at DateTime               @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model fortags_15715 {
+  id               Int       @id @default(autoincrement())
+  shopifyproductid String?   @db.VarChar(100)
+  tagremoved       Boolean   @default(false)
+  created_at       DateTime? @default(now()) @db.Timestamp(0)
+  updated_at       DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model importqueue {
+  id                 BigInt   @id @default(autoincrement())
+  user_id            Int
+  dateofmodification DateTime @db.DateTime(0)
+}
+
+model inventoryerrors {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  location_id       String   @db.VarChar(30)
+  inventory_item_id String   @db.VarChar(30)
+  available         Int
+  newimport         Boolean
+  processed         Boolean
+  created_at        DateTime @default(now()) @db.Timestamp(0)
+  updated_at        DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model ipn_requests {
+  id         Int                 @id @default(autoincrement())
+  type       String              @db.VarChar(30)
+  inprocess  Boolean
+  status     ipn_requests_status
+  user_id    Int
+  logfile    String              @db.VarChar(50)
+  created_at DateTime            @default(now()) @db.Timestamp(0)
+  updated_at DateTime            @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ipndata {
+  id          Int     @default(autoincrement())
+  ipn_type    String? @db.Text
+  ipn_rawdata String? @db.LongText
+  user_id     Int     @default(0)
+  createdAt   BigInt?
+  status      String  @db.Text
+  error       String? @db.LongText
+
+  @@id([id, user_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ipndata1 {
+  id          Int             @default(autoincrement())
+  ipn_type    String?         @db.Text
+  ipn_rawdata String?         @db.LongText
+  user_id     Int             @default(0)
+  createdAt   BigInt?
+  status      ipndata1_status
+  error       String?         @db.LongText
+
+  @@id([id, user_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ipndata_inv {
+  id          Int                @default(autoincrement())
+  ipn_type    String?            @db.Text
+  ipn_rawdata String?            @db.LongText
+  user_id     Int                @default(0)
+  createdAt   BigInt?
+  status      ipndata_inv_status
+  error       String?            @db.LongText
+
+  @@id([id, user_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ipnlistingdata {
+  id          Int                   @default(autoincrement())
+  ipn_type    String?               @db.Text
+  ipn_rawdata String?               @db.LongText
+  user_id     Int                   @default(0)
+  createdAt   BigInt?
+  status      ipnlistingdata_status
+  error       String?               @db.LongText
+
+  @@id([id, user_id])
+}
+
+model ipnqueue {
+  id                 Int      @id @default(autoincrement())
+  user_id            Int
+  dateofmodification DateTime @db.DateTime(0)
+}
+
+model ipnrawdata {
+  id          Int    @id @default(autoincrement())
+  ipn_rawdata String @db.LongText
+
+  @@index([id], map: "id")
+}
+
+model locations {
+  id                Int              @id @default(autoincrement())
+  name              String           @db.VarChar(255)
+  legacy            Boolean
+  status            locations_status @default(active)
+  shopifylocationid String           @db.VarChar(30)
+  user_id           Int
+  created_at        DateTime         @default(now()) @db.Timestamp(0)
+  updated_at        DateTime         @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model migrations {
+  migration String @db.VarChar(255)
+  batch     Int
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model password_resets {
+  email      String   @db.VarChar(255)
+  token      String   @db.VarChar(255)
+  created_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@index([token], map: "password_resets_token_index")
+  @@ignore
+}
+
+model pending_product_publish {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  shproduct_id BigInt    @db.UnsignedBigInt
+  processing   Int?      @db.TinyInt
+  user_id      BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+
+  @@index([user_id], map: "pending_product_publish_user_id_foreign")
+}
+
+model permission_role {
+  permission_id Int         @db.UnsignedInt
+  role_id       Int         @db.UnsignedInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, map: "permission_role_permission_id_foreign")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, map: "permission_role_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "permission_role_role_id_foreign")
+}
+
+model permissions {
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @unique(map: "permissions_name_unique") @db.VarChar(255)
+  display_name    String?           @db.VarChar(255)
+  description     String?           @db.VarChar(255)
+  created_at      DateTime          @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at      DateTime          @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  permission_role permission_role[]
+}
+
+model processimports {
+  id         Int       @default(autoincrement())
+  count      Int
+  user_id    Int
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@id([id, user_id])
+}
+
+model product_description {
+  id          BigInt   @default(autoincrement())
+  product_id  Int
+  description String   @db.LongText
+  user_id     Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@id([id, user_id])
+}
+
+model product_description1 {
+  id          BigInt   @default(autoincrement())
+  product_id  Int
+  description Bytes?   @db.Blob
+  user_id     Int
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@id([id, user_id])
+}
+
+model product_images {
+  id         Int      @default(autoincrement())
+  variant_id Int
+  imgurl     String   @db.VarChar(255)
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@id([id, user_id])
+}
+
+model product_images_auc {
+  id         Int      @default(autoincrement())
+  variant_id Int
+  imgurl     String   @db.VarChar(255)
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@id([id, user_id])
+}
+
+model product_variants {
+  id                     Int                     @default(autoincrement()) @db.UnsignedInt
+  product_id             Int
+  sku                    String                  @db.VarChar(100)
+  ebayitemid             String                  @db.VarChar(30)
+  option1val             String                  @db.VarChar(100)
+  option2val             String                  @db.VarChar(100)
+  option3val             String                  @db.VarChar(100)
+  option4val             String                  @db.VarChar(100)
+  option5val             String                  @db.VarChar(100)
+  price                  Float
+  orig_price             Float
+  quantity               Int
+  productidtype          Int
+  productid              String                  @db.VarChar(30)
+  weight                 Float                   @db.Float
+  weight_unit            String                  @default("lb") @db.VarChar(10)
+  imageurl               String                  @db.VarChar(500)
+  newflag                Int                     @db.TinyInt
+  quantityflag           Int                     @db.TinyInt
+  priceflag              Int                     @db.TinyInt
+  block                  Boolean
+  duplicate              Boolean
+  status                 product_variants_status @default(Ready_to_Import)
+  shopifyproductid       String                  @db.VarChar(30)
+  shopifyvariantid       String                  @db.VarChar(30)
+  shopifyinventoryid     String                  @db.VarChar(30)
+  shopifylocationid      String                  @db.VarChar(30)
+  gid_shopifyinventoryid String                  @db.VarChar(100)
+  gid_shopifylocationid  String                  @db.VarChar(100)
+  user_id                Int
+  created_at             DateTime                @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at             DateTime                @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  deleted                Boolean                 @default(false)
+
+  @@id([id, user_id])
+}
+
+model product_variants_auc {
+  id               Int                         @default(autoincrement()) @db.UnsignedInt
+  product_id       Int
+  sku              String                      @db.VarChar(100)
+  ebayitemid       String                      @db.VarChar(30)
+  option1val       String                      @db.VarChar(100)
+  option2val       String                      @db.VarChar(100)
+  option3val       String                      @db.VarChar(100)
+  option4val       String                      @db.VarChar(100)
+  option5val       String                      @db.VarChar(100)
+  price            Float
+  orig_price       Float
+  quantity         Int
+  productidtype    Int
+  productid        String                      @db.VarChar(30)
+  weight           Float                       @db.Float
+  weight_unit      String                      @default("lb") @db.VarChar(10)
+  imageurl         String                      @db.VarChar(500)
+  newflag          Int                         @db.TinyInt
+  quantityflag     Int                         @db.TinyInt
+  priceflag        Int                         @db.TinyInt
+  block            Boolean
+  duplicate        Boolean
+  status           product_variants_auc_status @default(Ready_to_Import)
+  shopifyproductid String                      @db.VarChar(30)
+  shopifyvariantid String                      @db.VarChar(30)
+  user_id          Int
+  created_at       DateTime                    @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at       DateTime                    @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  deleted          Boolean                     @default(false)
+
+  @@id([id, user_id])
+}
+
+model products {
+  product_id       Int             @default(autoincrement()) @db.UnsignedInt
+  title            String          @db.VarChar(500)
+  description      String          @db.Text
+  item_specific    String          @db.Text
+  condition_val    String          @db.VarChar(255)
+  condition_note   String          @db.VarChar(1000)
+  brand            String          @db.VarChar(100)
+  product_type     String          @db.VarChar(500)
+  storecategoryid  String          @db.VarChar(50)
+  storecategoryid2 String          @db.VarChar(50)
+  option1name      String          @db.VarChar(100)
+  option2name      String          @db.VarChar(100)
+  option3name      String          @db.VarChar(100)
+  option4name      String          @db.VarChar(100)
+  option5name      String          @db.VarChar(100)
+  ebayitemid       String          @db.VarChar(30)
+  shopifyproductid String          @db.VarChar(30)
+  newflag          Int             @db.TinyInt
+  quantityflag     Int             @db.TinyInt
+  priceflag        Int             @db.TinyInt
+  block            Boolean
+  duplicate        Boolean
+  deleted          Boolean         @default(false)
+  status           products_status @default(Ready_to_Import)
+  errdetails       String          @db.VarChar(2000)
+  user_id          Int
+  site             Int             @default(-1)
+  channel_id       Int             @default(-1)
+  created_at       DateTime        @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at       DateTime        @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  searchstring     String          @db.VarChar(2000)
+
+  @@id([product_id, user_id])
+}
+
+model products_auc {
+  product_id       Int                 @default(autoincrement()) @db.UnsignedInt
+  title            String              @db.VarChar(500)
+  description      String              @db.Text
+  item_specific    String              @db.Text
+  condition_val    String              @db.VarChar(255)
+  condition_note   String              @db.VarChar(500)
+  brand            String              @db.VarChar(100)
+  product_type     String              @db.VarChar(100)
+  storecategoryid  String              @db.VarChar(50)
+  option1name      String              @db.VarChar(100)
+  option2name      String              @db.VarChar(100)
+  option3name      String              @db.VarChar(100)
+  option4name      String              @db.VarChar(100)
+  option5name      String              @db.VarChar(100)
+  ebayitemid       String              @db.VarChar(30)
+  shopifyproductid String              @db.VarChar(30)
+  newflag          Int                 @db.TinyInt
+  quantityflag     Int                 @db.TinyInt
+  priceflag        Int                 @db.TinyInt
+  block            Boolean
+  duplicate        Boolean
+  deleted          Boolean             @default(false)
+  status           products_auc_status @default(Ready_to_Import)
+  user_id          Int
+  created_at       DateTime            @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at       DateTime            @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+
+  @@id([product_id, user_id])
+}
+
+model regular_expressions {
+  id         Int      @id @default(autoincrement())
+  regex      String   @db.VarChar(500)
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model role_user {
+  user_id Int   @db.UnsignedInt
+  role_id Int   @db.UnsignedInt
+  roles   roles @relation(fields: [role_id], references: [id], onDelete: Cascade, map: "role_user_role_id_foreign")
+  users   users @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "role_user_user_id_foreign")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "role_user_role_id_foreign")
+}
+
+model roles {
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @unique(map: "roles_name_unique") @db.VarChar(255)
+  display_name    String?           @db.VarChar(255)
+  description     String?           @db.VarChar(255)
+  created_at      DateTime          @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at      DateTime          @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  permission_role permission_role[]
+  role_user       role_user[]
+}
+
+model route_permission {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  route       String   @unique(map: "route_permission_route_unique") @db.VarChar(255)
+  permissions String?  @db.VarChar(255)
+  roles       String?  @db.VarChar(255)
+  created_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model settings {
+  id                   Int                           @id @default(autoincrement())
+  user_id              Int
+  published            Boolean
+  fulfilment_service   String                        @default("manual") @db.VarChar(50)
+  tags                 String?                       @db.VarChar(255)
+  vendor               String?                       @db.VarChar(255)
+  product_type         String?                       @db.VarChar(255)
+  taxable              Boolean                       @default(true)
+  inventory_policy     String                        @db.VarChar(50)
+  inventory_sync       Boolean
+  price_sync           Boolean
+  autodelete           Boolean                       @default(false)
+  autolink             Boolean                       @default(false)
+  autoimport           Boolean                       @default(false)
+  shopifyorders        Boolean                       @default(false)
+  shopifyorders_action settings_shopifyorders_action @default(end)
+  realtime             Boolean                       @default(false)
+  twowaysync           Boolean                       @default(false)
+  desc_cond            Boolean                       @default(false)
+  desc_itemspecs       Boolean                       @default(false)
+  autoupdate_config    String                        @db.VarChar(1000)
+  category             Boolean                       @default(false)
+  outofstock_action    settings_outofstock_action    @default(outofstock)
+  markupenabled        Int                           @default(0) @db.TinyInt
+  markuptype           settings_markuptype           @default(FIXED)
+  markupval            Float                         @default(0) @db.Float
+  markupvalfixed       Float                         @default(0) @db.Float
+  markupround          Boolean                       @default(true)
+  shopifylocationid    String                        @db.VarChar(30)
+  created_at           DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at           DateTime                      @default(now()) @db.Timestamp(0)
+  ShopifyToEbay        Boolean?                      @default(false)
+}
+
+model shippingcost {
+  id           Int      @id @default(autoincrement())
+  product_id   Int
+  service_type String   @db.VarChar(200)
+  cost         Float
+  user_id      Int
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model shopify_product_variants {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title                     String?   @db.VarChar(500)
+  sku                       String    @db.VarChar(255)
+  image                     String?   @db.VarChar(500)
+  barcode                   String?   @db.VarChar(255)
+  quantity                  Int?
+  price                     Float?
+  compare_at_price          Float?
+  shopify_variant_id        BigInt    @db.UnsignedBigInt
+  shopify_inventory_item_id BigInt    @db.UnsignedBigInt
+  shopify_product_id        BigInt    @db.UnsignedBigInt
+  shopify_product_handle    String    @db.VarChar(500)
+  shopify_variant_data      String?   @db.LongText
+  variant_id                BigInt?   @db.UnsignedBigInt
+  shproduct_id              BigInt    @db.UnsignedBigInt
+  user_id                   BigInt    @db.UnsignedBigInt
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  product_id                String    @db.VarChar(255)
+  status                    String    @db.VarChar(100)
+  option1val                String    @db.VarChar(100)
+  option2val                String    @db.VarChar(100)
+  option3val                String    @db.VarChar(100)
+
+  @@index([user_id], map: "product_variants_user_id_foreign")
+}
+
+model shopify_products {
+  shproduct_id           Int       @default(autoincrement()) @db.UnsignedInt
+  title                  String    @db.VarChar(500)
+  image                  String?   @db.VarChar(500)
+  status                 String?   @default("unpublished") @db.VarChar(100)
+  shopify_product_id     BigInt    @db.UnsignedBigInt
+  shopify_product_handle String    @db.VarChar(500)
+  shopify_product_type   String?   @db.VarChar(255)
+  shopify_product_data   String?   @db.LongText
+  offer_only             Int?      @db.TinyInt
+  submit                 Int?      @db.TinyInt
+  product_id             BigInt?   @db.UnsignedBigInt
+  user_id                BigInt    @db.UnsignedBigInt
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+  option1name            String    @db.VarChar(100)
+  option2name            String    @db.VarChar(100)
+  option3name            String    @db.VarChar(100)
+
+  @@id([shproduct_id, user_id])
+}
+
+model shopify_requests {
+  id         Int                     @id @default(autoincrement())
+  inprocess  Boolean
+  status     shopify_requests_status
+  user_id    Int
+  created_at DateTime                @default(now()) @db.Timestamp(0)
+  updated_at DateTime                @default(now()) @db.Timestamp(0)
+}
+
+model shopifycategories {
+  id                Int      @id @default(autoincrement())
+  name              String?  @db.VarChar(500)
+  shopifycategoryid String?  @db.VarChar(50)
+  user_id           Int?
+  created_at        DateTime @default(now()) @db.Timestamp(0)
+  updated_at        DateTime @default(now()) @db.Timestamp(0)
+}
+
+model shopifyorders {
+  id               Int      @id @default(autoincrement())
+  orderid          String   @db.VarChar(50)
+  user_id          Int
+  orderdata        String   @db.Text
+  inventoryupdates String   @db.VarChar(5000)
+  processed        Boolean  @default(false)
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  updated_at       DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model shopifyproducts {
+  id                     Int      @default(autoincrement())
+  user_id                Int
+  productid              String   @db.VarChar(30)
+  variantid              String   @db.VarChar(30)
+  gid_shopifyproductid   String   @db.VarChar(100)
+  gid_shopifyvariantid   String   @db.VarChar(100)
+  gid_shopifyinventoryid String   @db.VarChar(100)
+  gid_shopifylocationid  String   @db.VarChar(100)
+  sku                    String   @db.VarChar(100)
+  ebayitemid             String   @db.VarChar(30)
+  dateofmodification     DateTime @db.DateTime(0)
+  qty                    Int
+  price                  Float    @db.Float
+
+  @@id([id, user_id])
+}
+
+model shopifyproducts1 {
+  id                     Int      @default(autoincrement())
+  user_id                Int
+  title                  String   @db.VarChar(2000)
+  productid              String   @db.VarChar(30)
+  variantid              String   @db.VarChar(30)
+  gid_shopifyproductid   String   @db.VarChar(100)
+  gid_shopifyvariantid   String   @db.VarChar(100)
+  gid_shopifyinventoryid String   @db.VarChar(100)
+  gid_shopifylocationid  String   @db.VarChar(100)
+  sku                    String   @db.VarChar(100)
+  ebayitemid             String   @db.VarChar(30)
+  dateofmodification     DateTime @db.DateTime(0)
+  qty                    Int
+  price                  Float    @db.Float
+  compare_at_price       Float    @db.Float
+
+  @@id([id, user_id])
+}
+
+model shopifyproducts_15750 {
+  id                     Int      @default(autoincrement())
+  user_id                Int
+  productid              String   @db.VarChar(30)
+  variantid              String   @db.VarChar(30)
+  gid_shopifyproductid   String   @db.VarChar(100)
+  gid_shopifyvariantid   String   @db.VarChar(100)
+  gid_shopifyinventoryid String   @db.VarChar(100)
+  gid_shopifylocationid  String   @db.VarChar(100)
+  sku                    String   @db.VarChar(100)
+  ebayitemid             String   @db.VarChar(30)
+  dateofmodification     DateTime @db.DateTime(0)
+  qty                    Int
+  price                  Float    @db.Float
+  title                  String   @db.VarChar(255)
+  option1val             String   @db.VarChar(255)
+  option2val             String   @db.VarChar(255)
+  option3val             String   @db.VarChar(255)
+  options                String   @db.Text
+
+  @@id([id, user_id])
+}
+
+model shopifyproducts_3784 {
+  id                     Int      @default(autoincrement())
+  user_id                Int
+  productid              String   @db.VarChar(30)
+  variantid              String   @db.VarChar(30)
+  gid_shopifyproductid   String   @db.VarChar(100)
+  gid_shopifyvariantid   String   @db.VarChar(100)
+  gid_shopifyinventoryid String   @db.VarChar(100)
+  gid_shopifylocationid  String   @db.VarChar(100)
+  sku                    String   @db.VarChar(100)
+  ebayitemid             String   @db.VarChar(30)
+  dateofmodification     DateTime @db.DateTime(0)
+  qty                    Int
+  price                  Float    @db.Float
+
+  @@id([id, user_id])
+}
+
+model sku_asin_mapping {
+  id       Int    @id @default(autoincrement())
+  sku      String @db.VarChar(30)
+  asin     String @db.VarChar(30)
+  quantity Int
+  user_id  Int
+}
+
+model storecategories {
+  id                Int      @id @default(autoincrement())
+  category_id       String   @db.VarChar(50)
+  category_name     String   @db.VarChar(500)
+  parent_id         String   @db.VarChar(50)
+  shopifycategoryid String   @db.VarChar(30)
+  metadata          String   @db.VarChar(2000)
+  user_id           Int
+  dirty             Boolean  @default(false)
+  created_at        DateTime @default(now()) @db.Timestamp(0)
+  updated_at        DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model temp_32 {
+  id               Int      @id @default(autoincrement())
+  title            String   @db.VarChar(2000)
+  handle           String   @db.VarChar(2000)
+  shopifyproductid String   @db.VarChar(100)
+  dup              Boolean
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  updated_at       DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model test16702 {
+  id                 Int      @id @default(autoincrement())
+  product_id         Int
+  handle             String   @db.VarChar(500)
+  dateofmodification DateTime @default(now()) @db.Timestamp(0)
+}
+
+model test_1057 {
+  id               Int      @id @default(autoincrement())
+  shopifyproductid String   @db.VarChar(50)
+  imgarr           String   @db.Text
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+}
+
+model test_3435 {
+  id                 Int      @id @default(autoincrement())
+  shopifyproductid   String   @db.VarChar(30)
+  tags               String   @db.Text
+  dateofmodification DateTime @db.DateTime(0)
+}
+
+model test_3784 {
+  id        Int @id @default(autoincrement())
+  variantid Int
+  qty       Int
+}
+
+model test_8146 {
+  id               Int      @id @default(autoincrement())
+  sku              String   @db.VarChar(100)
+  shopifyvariantid String   @db.VarChar(30)
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+  updated_at       DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+}
+
+model users {
+  id                     Int                  @id @default(autoincrement()) @db.UnsignedInt
+  ownername              String               @db.VarChar(255)
+  email                  String               @db.VarChar(150)
+  password               String               @db.VarChar(60)
+  avatar_url             String               @db.VarChar(50)
+  shopurl                String               @db.Text
+  token                  String               @db.VarChar(255)
+  status                 users_status
+  multi_location_enabled Boolean              @default(false)
+  multiple_eb_accounts   Boolean              @default(false)
+  catalogfetched         Int                  @db.TinyInt
+  shopifyimported        Int                  @db.TinyInt
+  tempcode               String               @db.VarChar(30)
+  installationstatus     Int                  @db.TinyInt
+  membershiptype         users_membershiptype
+  plan                   Int
+  sync                   Int                  @db.TinyInt
+  storecreated_at        DateTime             @db.DateTime(0)
+  storeupdated_at        DateTime             @db.DateTime(0)
+  plan_name              String               @db.VarChar(255)
+  skulimit               Int                  @default(5)
+  skuconsumed            Int
+  tosaccepted            Int                  @db.TinyInt
+  publishstatus          Int                  @db.TinyInt
+  keysemail              Int                  @db.TinyInt
+  remember_token         String?              @db.VarChar(100)
+  created_at             DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  updated_at             DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  paid_at                DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  deleted_at             DateTime?            @db.Timestamp(0)
+  lastlogin              DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  lastimport             DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  usermsg                String               @db.VarChar(500)
+  review                 Boolean
+  discount               Float                @db.Float
+  custommode             Boolean
+  role_user              role_user[]
+}
+
+model validipnusers {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  test   String @db.VarChar(2000)
+}
+
+enum eb_requests_status {
+  pending
+  completed
+}
+
+enum shopify_requests_status {
+  pending
+  completed
+}
+
+enum ipn_requests_status {
+  pending
+  completed
+}
+
+enum locations_status {
+  active
+  inactive
+}
+
+enum flower_requests_status {
+  pending
+  completed
+}
+
+enum amz_reportrequests_status {
+  pending
+  requested
+  processed
+  downloaded
+  imported
+  readyforfb
+  readyforur
+  readyforpcr
+  readyforshopify
+  shopifyimported
+  readyforfbdate
+  readyforcatalog
+  readyforsalepricefetch
+}
+
+enum ipndata1_status {
+  unprocessed
+  processed
+  processedNotInDB
+  error
+  inactiveuser
+}
+
+enum ipndata_inv_status {
+  unprocessed
+  processed
+  processedNotInDB
+  error
+  inactiveuser
+}
+
+enum ipnlistingdata_status {
+  unprocessed
+  processed
+  processedNotInDB
+  error
+  inactiveuser
+}
+
+enum users_status {
+  active
+  inactive
+}
+
+enum amz_feeds_status {
+  readyforproduct
+  productsubmitted
+  readyforimage
+  imagesubmitted
+  readyforinventory
+  inventorysubmitted
+  readyforprice
+  pricesubmitted
+  readyforrelationship
+  relationshipsubmitted
+  completed
+  error
+}
+
+enum users_membershiptype {
+  free
+  paid
+}
+
+enum settings_shopifyorders_action {
+  end
+  outofstock
+}
+
+enum products_auc_status {
+  Already_Exist        @map("Already Exist")
+  Ready_to_Import      @map("Ready to Import")
+  Import_in_progress   @map("Import in progress")
+  Imported
+  reimport_in_progress @map("reimport in progress")
+}
+
+enum product_variants_status {
+  Already_Exist      @map("Already Exist")
+  Ready_to_Import    @map("Ready to Import")
+  Import_in_progress @map("Import in progress")
+  Imported
+}
+
+enum product_variants_auc_status {
+  Already_Exist      @map("Already Exist")
+  Ready_to_Import    @map("Ready to Import")
+  Import_in_progress @map("Import in progress")
+  Imported
+}
+
+enum settings_outofstock_action {
+  unpublish
+  outofstock
+  delete
+}
+
+enum products_status {
+  Already_Exist        @map("Already Exist")
+  Ready_to_Import      @map("Ready to Import")
+  Import_in_progress   @map("Import in progress")
+  Imported
+  reimport_in_progress @map("reimport in progress")
+  error
+}
+
+enum settings_markuptype {
+  FIXED
+  PERCEN
+}
